@@ -15,6 +15,8 @@ public class Character : MonoBehaviour
     [Tooltip("Represents how fast gravityContributionMultiplier will go back to 1f. The higher, the faster")] public float gravityComebackMultiplier = 15f;
     [Tooltip("The maximum speed reached when falling (in units/frame)")] public float maxFallSpeed = 50f;
     [Tooltip("Each frame while jumping, gravity will be multiplied by this amount in an attempt to 'cancel it' (= jump higher)")] public float gravityDivider = .6f;
+    [Tooltip("The speed of dash")] public float dashForce = 50f;
+    [Tooltip("Duration of dash")] public float dashDuration = 0.5f;
 
     private float gravityContributionMultiplier = 0f; //The factor which determines how much gravity is affecting verticalMovement
     private bool isJumping = false; //If true, a jump is in effect and the player is holding the jump button
@@ -23,6 +25,10 @@ public class Character : MonoBehaviour
     private float verticalMovement = 0f; //Represents how much a player will move vertically in a frame. Affected by gravity * gravityContributionMultiplier
     private Vector3 inputVector; //Initial input horizontal movement (y == 0f)
     private Vector3 movementVector; //Final movement vector
+    private bool isDashing = false; // If true, a dash is in effect
+    private float dashBeginTime = -Mathf.Infinity; // Time of last dash
+    private float YValueOnDashStart = -Mathf.Infinity; // Keep altitude while dashing
+    private bool doubleJumpAvailable = false; // pretty self expo imo
 
     private void Awake()
     {
@@ -57,6 +63,7 @@ public class Character : MonoBehaviour
         if (!characterController.isGrounded)
         {
             //Less control in mid-air, conserving momentum from previous frame
+            //movementVector = inputVector * speed;
             movementVector = inputVector * speed;
 
             //The character is either jumping or in freefall, so gravity will add up
@@ -83,6 +90,20 @@ public class Character : MonoBehaviour
             }
         }
 
+        if (isDashing)
+        {
+            if (Time.time >= dashBeginTime + dashDuration)
+            {
+                isDashing = false;
+                movementVector = inputVector * speed;
+            }
+            else
+            {
+                movementVector = transform.forward * (speed + dashForce);
+                verticalMovement = 0f;
+            }
+        }
+
         //Apply the result and move the character in space
         movementVector.y = verticalMovement;
         characterController.Move(movementVector * Time.deltaTime);
@@ -102,7 +123,7 @@ public class Character : MonoBehaviour
     
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (isJumping)
+        if (verticalMovement >= 0)
         {
             // Making sure the collision is near the top of the head
             float permittedDistance = characterController.radius / 2f;
@@ -134,6 +155,15 @@ public class Character : MonoBehaviour
         if (characterController.isGrounded)
         {
             isJumping = true;
+            doubleJumpAvailable = true;
+            jumpBeginTime = Time.time;
+            verticalMovement = initialJumpForce; //This is the only place where verticalMovement is set to a positive value
+            gravityContributionMultiplier = 0f;
+        }
+        else if (doubleJumpAvailable)
+        {
+            isJumping = true;
+            doubleJumpAvailable = false;
             jumpBeginTime = Time.time;
             verticalMovement = initialJumpForce; //This is the only place where verticalMovement is set to a positive value
             gravityContributionMultiplier = 0f;
@@ -143,5 +173,11 @@ public class Character : MonoBehaviour
     public void CancelJump()
     {
         isJumping = false; //This will stop the reduction to the gravity, which will then quickly pull down the character
+    }
+
+    public void Dash()
+    {
+        isDashing = true;
+        dashBeginTime = Time.time;
     }
 }

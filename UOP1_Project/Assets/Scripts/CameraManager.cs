@@ -24,7 +24,7 @@ public class CameraManager : MonoBehaviour
 
 	private void OnCameraMove(Vector2 cameraMovement)
 	{
-		freeLookVCam.m_XAxis.m_InputAxisValue = cameraMovement.x * Time.smoothDeltaTime;
-		freeLookVCam.m_YAxis.m_InputAxisValue = cameraMovement.y * Time.smoothDeltaTime;
+		freeLookVCam.m_XAxis.m_InputAxisValue = cameraMovement.x * Time.smoothDeltaTime * 4;
+		freeLookVCam.m_YAxis.m_InputAxisValue = cameraMovement.y * Time.smoothDeltaTime * 4;
 	}
 }

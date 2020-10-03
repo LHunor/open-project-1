@@ -20,6 +20,7 @@ public class Protagonist : MonoBehaviour
         inputReader.jumpEvent += OnJumpInitiated;
         inputReader.jumpCanceledEvent += OnJumpCanceled;
         inputReader.moveEvent += OnMove;
+        inputReader.dashEvent += OnDash;
         //...
     }
 
@@ -29,6 +30,7 @@ public class Protagonist : MonoBehaviour
         inputReader.jumpEvent -= OnJumpInitiated;
         inputReader.jumpCanceledEvent -= OnJumpCanceled;
         inputReader.moveEvent -= OnMove;
+        inputReader.dashEvent -= OnDash;
         //...
     }
 
@@ -67,5 +69,10 @@ public class Protagonist : MonoBehaviour
     private void OnJumpCanceled()
     {
         if (controlsEnabled) charScript.CancelJump();
+    }
+
+    private void OnDash()
+    {
+        if (controlsEnabled) charScript.Dash();
     }
 }

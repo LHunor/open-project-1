@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Events;
 
@@ -14,8 +12,9 @@ public class InputReader : MonoBehaviour, GameInput.IGameplayActions
 	public UnityAction pauseEvent;
 	public UnityAction<Vector2> moveEvent;
 	public UnityAction<Vector2> cameraMoveEvent;
+    public UnityAction dashEvent;
 
-	GameInput gameInput;
+    GameInput gameInput;
 	
 	private void OnEnable()
 	{
@@ -86,4 +85,11 @@ public class InputReader : MonoBehaviour, GameInput.IGameplayActions
 			cameraMoveEvent.Invoke(context.ReadValue<Vector2>());
 		}
 	}
+
+    public void OnDash(InputAction.CallbackContext context) 
+    {
+        if (dashEvent != null
+            && context.phase == InputActionPhase.Started)
+            dashEvent.Invoke();
+    }
 }
